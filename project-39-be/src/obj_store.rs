@@ -31,7 +31,9 @@ fn scan_objs_id(path: &Path) -> usize {
     let path = fs::canonicalize(path).unwrap();
     log::info!("scan_objs_id: path = `{path:?}`");
     let dir = path.read_dir().unwrap();
-    dir.count() - 1
+    let ret = dir.count() - 1;
+    log::info!("scan_objs_id: len = {ret}");
+    ret
 }
 
 #[derive(Serialize, Deserialize)]

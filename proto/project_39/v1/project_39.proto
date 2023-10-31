@@ -112,4 +112,4 @@ message PutDisplayObjectStatusRequest {
   DisplayObject obj = 2;
 }
 
-message PutDisplayObjectStatusResponse {}
+message PutDisplayObjectStatusResponse { int64 obj_id = 1; }
