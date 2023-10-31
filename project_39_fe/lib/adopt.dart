@@ -60,7 +60,8 @@ class AdoptData {
       required this.imageUrl,
       required this.description,
       required this.category,
-      required this.location});
+      required this.location,
+      required this.ownership});
 
   final int objId;
   final String title;
@@ -68,6 +69,7 @@ class AdoptData {
   final String description;
   final String category;
   final String location;
+  final String ownership;
 }
 
 Future<List<AdoptData>> getAdoptDataBatch() async {
@@ -76,6 +78,7 @@ Future<List<AdoptData>> getAdoptDataBatch() async {
       await client.getDisplayObjectBatch(GetDisplayObjectBatchRequest(len: 20));
   return batch.objs.map((e) {
     return AdoptData(
+        ownership: e.ownership,
         objId: e.objId.toInt(),
         title: e.objName,
         imageUrl: e.objProfilePictureUrl,

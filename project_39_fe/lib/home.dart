@@ -4,6 +4,7 @@ import 'package:project_39_fe/adopt.dart';
 import 'package:project_39_fe/rpc.dart';
 import 'package:project_39_fe/src/generated/project_39/v1/project_39.pb.dart';
 import 'package:project_39_fe/upload.dart';
+import 'package:project_39_fe/user.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.userId, required this.token});
@@ -49,6 +50,9 @@ class _HomePageState extends State<HomePage> {
           userId: widget.userId,
           token: widget.token,
         );
+
+      case 2:
+        child = UserPage(userName: userName, userId: widget.userId);
       default:
         throw UnimplementedError();
     }

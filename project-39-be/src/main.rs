@@ -146,7 +146,9 @@ impl Project39Service for MikuServer {
         &self,
         _request: Request<GetDisplayObjectBatchRequest>,
     ) -> GrpcResult<GetDisplayObjectBatchResponse> {
-        Ok(Response::new(simple_local_batch(SIMPLE_LOCAL_STORE_URL)))
+        Ok(Response::new(
+            simple_local_batch(&self.sqlite_pool, SIMPLE_LOCAL_STORE_URL).await,
+        ))
     }
     async fn put_display_object_batch(
         &self,
