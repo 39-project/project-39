@@ -1,3 +1,6 @@
+use std::fs;
+use std::path::Path;
+
 use project_39_be::obj_store::{
     get_display_object_status, init_display_object_status, SIMPLE_LOCAL_STORE_URL,
 };
@@ -119,7 +122,7 @@ impl Project39Service for MikuServer {
         &self,
         _request: Request<DelUserInfoRequest>,
     ) -> GrpcResult<DelUserInfoResponse> {
-        todo!()
+        unimplemented!()
     }
 
     async fn log_in(&self, request: Request<LogInRequest>) -> GrpcResult<LogInResponse> {
@@ -135,8 +138,8 @@ impl Project39Service for MikuServer {
         .map_err(|err| Status::aborted(err.to_string()))
         .map(Response::new)
     }
-    async fn log_out(&self, request: Request<LogOutRequest>) -> GrpcResult<LogOutResponse> {
-        todo!()
+    async fn log_out(&self, _request: Request<LogOutRequest>) -> GrpcResult<LogOutResponse> {
+        unimplemented!()
     }
 
     async fn get_display_object_batch(
@@ -147,15 +150,15 @@ impl Project39Service for MikuServer {
     }
     async fn put_display_object_batch(
         &self,
-        request: Request<PutDisplayObjectBatchRequest>,
+        _request: Request<PutDisplayObjectBatchRequest>,
     ) -> GrpcResult<PutDisplayObjectBatchResponse> {
-        todo!()
+        unimplemented!()
     }
     async fn del_display_object(
         &self,
-        request: Request<DelDisplayObjectRequest>,
+        _request: Request<DelDisplayObjectRequest>,
     ) -> GrpcResult<DelDisplayObjectResponse> {
-        todo!()
+        unimplemented!()
     }
 
     async fn get_display_object_status(
@@ -178,7 +181,11 @@ impl Project39Service for MikuServer {
             user_id,
             obj,
         } = request.into_inner();
-        let DisplayObject { obj_id, .. } = obj.unwrap();
+        let DisplayObject {
+            obj_id,
+            obj_profile_picture_bin,
+            ..
+        } = obj.unwrap();
 
         let GetUserInfoResponse {
             user_id, user_name, ..
@@ -192,8 +199,21 @@ impl Project39Service for MikuServer {
                 .execute(&self.sqlite_pool)
                 .await
                 .map_err(|err| tonic::Status::aborted(err.to_string()))?;
+            let obj_id = sqlx::query!("select last_insert_rowid() as obj_id")
+                .fetch_one(&self.sqlite_pool)
+                .await
+                .unwrap()
+                .obj_id;
+            let path = Path::new(SIMPLE_LOCAL_STORE_URL);
+            let path = path.join(format!("{obj_id}"));
+            fs::create_dir_all(path.clone()).unwrap();
+            let path = path.join("profile");
+            fs::write(path, obj_profile_picture_bin)
+                .map_err(|err| tonic::Status::aborted(err.to_string()))?;
 
-            todo!()
+            Ok(Response::new(PutDisplayObjectStatusResponse {
+                obj_id: obj_id as _,
+            }))
         } else {
             sqlx::query!(
                 "update objs set ownership = ? where obj_id = ?",

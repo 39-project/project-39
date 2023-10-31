@@ -1,11 +1,15 @@
 import 'dart:io';
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:project_39_fe/rpc.dart';
 import 'package:project_39_fe/src/generated/project_39/v1/project_39.pb.dart';
 
 class UploadPage extends StatefulWidget {
-  const UploadPage({super.key});
+  const UploadPage({super.key, required this.userId, required this.token});
+
+  final Int64 userId;
+  final String token;
 
   @override
   State<UploadPage> createState() => _UploadPageState();
@@ -33,7 +37,8 @@ class _UploadPageState extends State<UploadPage> {
     try {
       final ret =
           await client.putDisplayObjectStatus(PutDisplayObjectStatusRequest(
-              token: null,
+              token: widget.token,
+              userId: widget.userId.toString(),
               obj: DisplayObject(
                 objProfilePictureBin: _pickedFile?.readAsBytesSync(),
                 objName: _objName,
@@ -89,6 +94,9 @@ class _UploadPageState extends State<UploadPage> {
             onPressed: _pickFile,
             child: const Text('选择宠物照片'),
           ),
+          _pickedFile == null
+              ? const Center(child: Text("待上传图片"))
+              : const Center(child: Text("图片已上传")),
           const SizedBox(height: 20),
           TextField(
             onChanged: (value) => _objName = value,

@@ -6,8 +6,9 @@ import 'package:project_39_fe/src/generated/project_39/v1/project_39.pb.dart';
 import 'package:project_39_fe/upload.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.userId});
+  const HomePage({super.key, required this.userId, required this.token});
   final Int64 userId;
+  final String token;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -44,7 +45,10 @@ class _HomePageState extends State<HomePage> {
           userId: widget.userId,
         );
       case 1:
-        child = const UploadPage();
+        child = UploadPage(
+          userId: widget.userId,
+          token: widget.token,
+        );
       default:
         throw UnimplementedError();
     }
