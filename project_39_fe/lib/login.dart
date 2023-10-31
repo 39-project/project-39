@@ -162,15 +162,20 @@ class _RegisterAndNextButtons extends StatelessWidget {
                 onPressed: () {
                   final client = newRpcClient();
 
+                  final userId = Int64(int.parse(userIdTextEditingController.text));
+                  final password = passwordTextEditingController.text;
+
                   client
                       .logIn(LogInRequest(
-                    userId: Int64(int.parse(userIdTextEditingController.text)),
-                    password: passwordTextEditingController.text,
+                    userId: userId,
+                    password: password,
                   ))
                       .then((resp) {
                     Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) {
-                        return const HomePage();
+                        return  HomePage(
+                          userId: userId,
+                        );
                       },
                     ));
                   }).onError((error, stackTrace) {

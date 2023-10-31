@@ -171,6 +171,26 @@ impl Project39Service for MikuServer {
         &self,
         request: Request<PutDisplayObjectStatusRequest>,
     ) -> GrpcResult<PutDisplayObjectStatusResponse> {
-        todo!()
+        let PutDisplayObjectStatusRequest {
+            token,
+            user_id,
+            obj,
+        } = request.into_inner();
+        let DisplayObject {
+            obj_id,
+            obj_profile_picture_url,
+            obj_profile_picture_bin,
+            obj_name,
+            category,
+            desc,
+            location,
+            ownership,
+        } = obj.unwrap();
+
+        if obj_id == 0 {
+            todo!()
+        } else {
+            todo!()
+        }
     }
 }

@@ -8,7 +8,8 @@ const height = 298.0;
 final scrollController = ScrollController();
 
 class AdoptPage extends StatefulWidget {
-  const AdoptPage({super.key});
+  const AdoptPage({super.key, required this.userName});
+  final String userName;
 
   @override
   State<AdoptPage> createState() => _AdoptPageState();
@@ -35,7 +36,7 @@ class _AdoptPageState extends State<AdoptPage> {
               padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
               children: snapshot.data!.map((e) {
                 return buildCardLayout(context, e.objId, e.title, e.imageUrl,
-                    e.description, e.category, e.location);
+                    e.description, e.category, e.location, widget.userName);
               }).toList(),
             ),
           );
@@ -75,8 +76,15 @@ Future<List<AdoptData>> getAdoptDataBatch() async {
   }).toList();
 }
 
-Widget buildCardLayout(BuildContext context, int objId, String title,
-    String imageUrl, String description, String category, String location) {
+Widget buildCardLayout(
+    BuildContext context,
+    int objId,
+    String title,
+    String imageUrl,
+    String description,
+    String category,
+    String location,
+    String userName) {
   return Container(
     margin: const EdgeInsets.only(bottom: 8),
     child: SafeArea(
@@ -102,7 +110,7 @@ Widget buildCardLayout(BuildContext context, int objId, String title,
                             ),
                           ),
                           body: buildDetailPage(context, objId, title, imageUrl,
-                              description, category, location),
+                              description, category, location, userName),
                         );
                       }));
                     },
@@ -186,14 +194,21 @@ Widget buildCard(BuildContext context, String title, String imageUrl,
   );
 }
 
-Widget buildDetailPage(BuildContext context, int objId, String title,
-    String imageUrl, String description, String category, String location) {
+Widget buildDetailPage(
+    BuildContext context,
+    int objId,
+    String title,
+    String imageUrl,
+    String description,
+    String category,
+    String location,
+    String userName) {
   final card =
       buildCard(context, title, imageUrl, description, category, location);
 
   return FutureBuilder(
-    future: buildDetailPageFuture(
-        context, objId, title, imageUrl, description, category, location, card),
+    future: buildDetailPageFuture(context, objId, title, imageUrl, description,
+        category, location, card, userName),
     builder: (context, snapshot) {
       if (snapshot.connectionState != ConnectionState.done) {
         return const CircularProgressIndicator();
@@ -216,7 +231,8 @@ Future<Widget> buildDetailPageFuture(
     String description,
     String category,
     String location,
-    Widget card) async {
+    Widget card,
+    String userName) async {
   final client = newRpcClient();
   final ret = await client.getDisplayObjectStatus(
       GetDisplayObjectStatusRequest(objId: Int64(objId)));
@@ -243,7 +259,7 @@ Future<Widget> buildDetailPageFuture(
           onPressed: () async {
             if (ret.obj.ownership.isNotEmpty) {
               final obj = ret.obj;
-              obj.ownership = "";
+              obj.ownership = userName;
               await client.putDisplayObjectStatus(
                   PutDisplayObjectStatusRequest(obj: obj));
             }

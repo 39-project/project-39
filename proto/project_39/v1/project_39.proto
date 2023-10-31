@@ -108,8 +108,9 @@ message GetDisplayObjectStatusResponse { DisplayObject obj = 1; }
 
 message PutDisplayObjectStatusRequest {
   string token = 1;
+  string user_id = 2;
 
-  DisplayObject obj = 2;
+  DisplayObject obj = 3;
 }
 
 message PutDisplayObjectStatusResponse { int64 obj_id = 1; }

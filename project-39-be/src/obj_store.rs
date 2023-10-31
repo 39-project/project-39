@@ -31,7 +31,7 @@ fn scan_objs_id(path: &Path) -> usize {
     let path = fs::canonicalize(path).unwrap();
     log::info!("scan_objs_id: path = `{path:?}`");
     let dir = path.read_dir().unwrap();
-    let ret = dir.count() - 1;
+    let ret = dir.count() - 2;
     log::info!("scan_objs_id: len = {ret}");
     ret
 }
@@ -47,7 +47,7 @@ struct MetaObj {
 pub fn simple_local_batch(url: &str) -> GetDisplayObjectBatchResponse {
     let path = Path::new(url);
     let path = fs::canonicalize(path).unwrap();
-    let objs = (1..scan_objs_id(&path))
+    let objs = (1..=scan_objs_id(&path))
         .map(|i| {
             let path = path.join(format!("{i}")).join("meta.json");
             log::info!("read_to_string: `{path:?}`");
