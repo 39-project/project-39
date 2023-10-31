@@ -37,11 +37,11 @@ fn scan_objs_id(path: &Path) -> usize {
 }
 
 #[derive(Serialize, Deserialize)]
-struct MetaObj {
-    obj_name: String,
-    category: String,
-    desc: String,
-    location: String,
+pub struct MetaObj {
+    pub obj_name: String,
+    pub category: String,
+    pub desc: String,
+    pub location: String,
 }
 
 pub fn simple_local_batch(url: &str) -> GetDisplayObjectBatchResponse {

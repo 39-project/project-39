@@ -2,7 +2,7 @@ use std::fs;
 use std::path::Path;
 
 use project_39_be::obj_store::{
-    get_display_object_status, init_display_object_status, SIMPLE_LOCAL_STORE_URL,
+    self, get_display_object_status, init_display_object_status, SIMPLE_LOCAL_STORE_URL,
 };
 use project_39_be::{
     obj_store::simple_local_batch,
@@ -184,6 +184,10 @@ impl Project39Service for MikuServer {
         let DisplayObject {
             obj_id,
             obj_profile_picture_bin,
+            obj_name,
+            category,
+            desc,
+            location,
             ..
         } = obj.unwrap();
 
@@ -205,11 +209,22 @@ impl Project39Service for MikuServer {
                 .unwrap()
                 .obj_id;
             let path = Path::new(SIMPLE_LOCAL_STORE_URL);
-            let path = path.join(format!("{obj_id}"));
-            fs::create_dir_all(path.clone()).unwrap();
-            let path = path.join("profile");
+            let dir_path = path.join(format!("{obj_id}"));
+            fs::create_dir_all(dir_path.clone()).unwrap();
+            let path = dir_path.join("profile");
             fs::write(path, obj_profile_picture_bin)
                 .map_err(|err| tonic::Status::aborted(err.to_string()))?;
+
+            let json = obj_store::MetaObj {
+                obj_name,
+                category,
+                desc,
+                location,
+            };
+
+            let json = serde_json::to_string(&json).unwrap();
+            let path = dir_path.join("meta.json");
+            fs::write(path, json).map_err(|err| tonic::Status::aborted(err.to_string()))?;
 
             Ok(Response::new(PutDisplayObjectStatusResponse {
                 obj_id: obj_id as _,
