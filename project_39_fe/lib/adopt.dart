@@ -8,7 +8,8 @@ const height = 298.0;
 final scrollController = ScrollController();
 
 class AdoptPage extends StatefulWidget {
-  const AdoptPage({super.key, required this.userName});
+  const AdoptPage({super.key, required this.userName, required this.userId});
+  final Int64 userId;
   final String userName;
 
   @override
@@ -35,8 +36,16 @@ class _AdoptPageState extends State<AdoptPage> {
               controller: scrollController,
               padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
               children: snapshot.data!.map((e) {
-                return buildCardLayout(context, e.objId, e.title, e.imageUrl,
-                    e.description, e.category, e.location, widget.userName);
+                return buildCardLayout(
+                    context,
+                    e.objId,
+                    e.title,
+                    e.imageUrl,
+                    e.description,
+                    e.category,
+                    e.location,
+                    widget.userName,
+                    widget.userId);
               }).toList(),
             ),
           );
@@ -84,7 +93,8 @@ Widget buildCardLayout(
     String description,
     String category,
     String location,
-    String userName) {
+    String userName,
+    Int64 userId) {
   return Container(
     margin: const EdgeInsets.only(bottom: 8),
     child: SafeArea(
@@ -109,8 +119,16 @@ Widget buildCardLayout(
                               onPressed: () => Navigator.pop(context),
                             ),
                           ),
-                          body: buildDetailPage(context, objId, title, imageUrl,
-                              description, category, location, userName),
+                          body: buildDetailPage(
+                              context,
+                              objId,
+                              title,
+                              imageUrl,
+                              description,
+                              category,
+                              location,
+                              userName,
+                              userId),
                         );
                       }));
                     },
@@ -202,13 +220,14 @@ Widget buildDetailPage(
     String description,
     String category,
     String location,
-    String userName) {
+    String userName,
+    Int64 userId) {
   final card =
       buildCard(context, title, imageUrl, description, category, location);
 
   return FutureBuilder(
     future: buildDetailPageFuture(context, objId, title, imageUrl, description,
-        category, location, card, userName),
+        category, location, card, userName, userId),
     builder: (context, snapshot) {
       if (snapshot.connectionState != ConnectionState.done) {
         return const CircularProgressIndicator();
@@ -232,7 +251,8 @@ Future<Widget> buildDetailPageFuture(
     String category,
     String location,
     Widget card,
-    String userName) async {
+    String userName,
+    Int64 userId) async {
   final client = newRpcClient();
   final ret = await client.getDisplayObjectStatus(
       GetDisplayObjectStatusRequest(objId: Int64(objId)));
@@ -257,29 +277,48 @@ Future<Widget> buildDetailPageFuture(
         child: TextButton(
           child: Text(status),
           onPressed: () async {
-            if (ret.obj.ownership.isNotEmpty) {
+            if (ret.obj.ownership.isEmpty) {
               final obj = ret.obj;
               obj.ownership = userName;
-              await client.putDisplayObjectStatus(
-                  PutDisplayObjectStatusRequest(obj: obj));
-            }
+              await client.putDisplayObjectStatus(PutDisplayObjectStatusRequest(
+                  userId: userId.toString(), obj: obj));
 
-            // ignore: use_build_context_synchronously
-            await showDialog<String>(
-              context: context,
-              builder: (BuildContext context) => AlertDialog(
-                title: const Text('领养成功'),
-                content: Text("带$title回家吧～"),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context, 'OK');
-                    },
-                    child: const Text('OK'),
-                  ),
-                ],
-              ),
-            );
+              // ignore: use_build_context_synchronously
+              await showDialog<String>(
+                context: context,
+                builder: (BuildContext context) => AlertDialog(
+                  title: const Text('领养成功'),
+                  content: Text("带$title回家吧～"),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context, 'OK');
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                ),
+              );
+              // ignore: use_build_context_synchronously
+              Navigator.pop(context);
+            } else {
+              // ignore: use_build_context_synchronously
+              await showDialog<String>(
+                context: context,
+                builder: (BuildContext context) => AlertDialog(
+                  title: const Text('领养失败'),
+                  content: Text("$title已经有家了"),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context, 'OK');
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                ),
+              );
+            }
           },
         ),
       ),

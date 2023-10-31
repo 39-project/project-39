@@ -1,5 +1,5 @@
 pub mod obj_store;
-mod token;
+pub mod token;
 pub mod user;
 mod utils;
 

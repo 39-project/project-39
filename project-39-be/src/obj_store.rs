@@ -98,7 +98,7 @@ pub fn simple_local_batch(url: &str) -> GetDisplayObjectBatchResponse {
 pub async fn init_display_object_status(sql_executor: &Pool<Sqlite>) {
     let path = Path::new(SIMPLE_LOCAL_STORE_URL);
     let path = fs::canonicalize(path).unwrap();
-    for _ in 1..scan_objs_id(&path) {
+    for _ in 1..=scan_objs_id(&path) {
         sqlx::query!("insert into objs (ownership) values ('')")
             .execute(sql_executor)
             .await

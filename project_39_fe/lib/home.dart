@@ -41,6 +41,7 @@ class _HomePageState extends State<HomePage> {
       case 0:
         child = AdoptPage(
           userName: userName,
+          userId: widget.userId,
         );
       case 1:
         child = const UploadPage();

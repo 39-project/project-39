@@ -1,7 +1,6 @@
 use project_39_be::obj_store::{
     get_display_object_status, init_display_object_status, SIMPLE_LOCAL_STORE_URL,
 };
-use project_39_be::user;
 use project_39_be::{
     obj_store::simple_local_batch,
     project_39_pb::{
@@ -9,6 +8,7 @@ use project_39_be::{
         *,
     },
 };
+use project_39_be::{token::*, user};
 use sqlx::{sqlite::SqlitePoolOptions, Pool, Sqlite};
 use tonic::{
     service::{self},
@@ -171,26 +171,40 @@ impl Project39Service for MikuServer {
         &self,
         request: Request<PutDisplayObjectStatusRequest>,
     ) -> GrpcResult<PutDisplayObjectStatusResponse> {
+        log::info!("put_display_object_status: {request:?}");
+
         let PutDisplayObjectStatusRequest {
             token,
             user_id,
             obj,
         } = request.into_inner();
-        let DisplayObject {
-            obj_id,
-            obj_profile_picture_url,
-            obj_profile_picture_bin,
-            obj_name,
-            category,
-            desc,
-            location,
-            ownership,
-        } = obj.unwrap();
+        let DisplayObject { obj_id, .. } = obj.unwrap();
+
+        let GetUserInfoResponse {
+            user_id, user_name, ..
+        } = user::get_user_info(&self.sqlite_pool, user_id.parse().unwrap())
+            .await
+            .unwrap();
 
         if obj_id == 0 {
+            verify_token(&self.redis_client, token, user_id)?;
+            sqlx::query!("insert into objs (ownership) values ('')")
+                .execute(&self.sqlite_pool)
+                .await
+                .map_err(|err| tonic::Status::aborted(err.to_string()))?;
+
             todo!()
         } else {
-            todo!()
+            sqlx::query!(
+                "update objs set ownership = ? where obj_id = ?",
+                user_name,
+                obj_id
+            )
+            .execute(&self.sqlite_pool)
+            .await
+            .unwrap();
+
+            Ok(Response::new(PutDisplayObjectStatusResponse { obj_id }))
         }
     }
 }
