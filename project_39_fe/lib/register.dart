@@ -139,12 +139,12 @@ class _RegisterAndNextButtons extends StatelessWidget {
                     userName: userNameTextEditingController.text,
                     password: passwordTextEditingController.text,
                   ))
-                      .then((_) async {
+                      .then((x) async {
                     await showDialog<String>(
                       context: context,
                       builder: (BuildContext context) => AlertDialog(
                         title: const Text('注册成功'),
-                        content: const Text('即将返回登陆页面'),
+                        content: Text("请使用 uid ${x.userId} 登陆，即将返回登陆页面"),
                         actions: <Widget>[
                           TextButton(
                             onPressed: () {
