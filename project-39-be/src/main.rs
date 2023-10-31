@@ -184,6 +184,7 @@ impl Project39Service for MikuServer {
         let DisplayObject {
             obj_id,
             obj_profile_picture_bin,
+            obj_profile_picture_ext,
             obj_name,
             category,
             desc,
@@ -211,7 +212,7 @@ impl Project39Service for MikuServer {
             let path = Path::new(SIMPLE_LOCAL_STORE_URL);
             let dir_path = path.join(format!("{obj_id}"));
             fs::create_dir_all(dir_path.clone()).unwrap();
-            let path = dir_path.join("profile");
+            let path = dir_path.join(format!("profile.{obj_profile_picture_ext}",));
             fs::write(path, obj_profile_picture_bin)
                 .map_err(|err| tonic::Status::aborted(err.to_string()))?;
 

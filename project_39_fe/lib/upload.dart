@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -16,18 +16,22 @@ class UploadPage extends StatefulWidget {
 }
 
 class _UploadPageState extends State<UploadPage> {
-  File? _pickedFile;
+  bool uploaded = false;
+  Uint8List? _pickedFile;
   String? _objName;
   String? _category;
   String? _desc;
   String? _location;
+  String? _fileExt;
 
   Future<void> _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
+    _fileExt = result?.names[0]?.split(".")[1];
 
     if (result != null) {
       setState(() {
-        _pickedFile = File(result.files.single.path!);
+        _pickedFile = result.files.single.bytes!;
+        uploaded = true;
       });
     }
   }
@@ -40,7 +44,8 @@ class _UploadPageState extends State<UploadPage> {
               token: widget.token,
               userId: widget.userId.toString(),
               obj: DisplayObject(
-                objProfilePictureBin: _pickedFile?.readAsBytesSync(),
+                objProfilePictureBin: _pickedFile,
+                objProfilePictureExt: _fileExt,
                 objName: _objName,
                 desc: _desc,
                 location: _location,
@@ -94,7 +99,7 @@ class _UploadPageState extends State<UploadPage> {
             onPressed: _pickFile,
             child: const Text('选择宠物照片'),
           ),
-          _pickedFile == null
+          !uploaded
               ? const Center(child: Text("待上传图片"))
               : const Center(child: Text("图片已上传")),
           const SizedBox(height: 20),

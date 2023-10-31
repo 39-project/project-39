@@ -73,13 +73,14 @@ message DisplayObject {
 
   string obj_profile_picture_url = 2;
   bytes obj_profile_picture_bin = 3;
+  string obj_profile_picture_ext = 4;
 
-  string obj_name = 4;
-  string category = 5;
-  string desc = 6;
-  string location = 7;
+  string obj_name = 5;
+  string category = 6;
+  string desc = 7;
+  string location = 8;
 
-  string ownership = 8;
+  string ownership = 9;
 }
 
 message GetDisplayObjectBatchRequest { uint32 len = 1; }
