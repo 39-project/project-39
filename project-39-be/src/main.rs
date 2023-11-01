@@ -191,6 +191,7 @@ impl Project39Service for MikuServer {
             category,
             desc,
             location,
+            ownership,
             ..
         } = obj.unwrap();
 
@@ -235,7 +236,7 @@ impl Project39Service for MikuServer {
         } else {
             sqlx::query!(
                 "update objs set ownership = ? where obj_id = ?",
-                user_name,
+                ownership,
                 obj_id
             )
             .execute(&self.sqlite_pool)

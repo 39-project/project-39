@@ -263,6 +263,8 @@ Future<Widget> buildDetailPageFuture(
   String status;
   if (ret.obj.ownership.isEmpty) {
     status = "领养";
+  } else if (ret.obj.ownership == userName) {
+    status = "已经由用户 @${ret.obj.ownership} 领养 | 放弃领养";
   } else {
     status = "已经由用户 @${ret.obj.ownership} 领养";
   }
@@ -304,6 +306,35 @@ Future<Widget> buildDetailPageFuture(
               );
               // ignore: use_build_context_synchronously
               Navigator.pop(context);
+            } else if (ret.obj.ownership == userName) {
+
+
+     final obj = ret.obj;
+              obj.ownership = "";
+              await client.putDisplayObjectStatus(PutDisplayObjectStatusRequest(
+                  userId: userId.toString(), obj: obj));
+
+              // ignore: use_build_context_synchronously
+              await showDialog<String>(
+                context: context,
+                builder: (BuildContext context) => AlertDialog(
+                  title: const Text('放弃领养'),
+                  content: Text("$title 将会被送回"),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context, 'OK');
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                ),
+              );
+              // ignore: use_build_context_synchronously
+              Navigator.pop(context);
+
+
+
             } else {
               // ignore: use_build_context_synchronously
               await showDialog<String>(
